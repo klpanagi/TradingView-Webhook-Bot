@@ -7,12 +7,12 @@
 import json
 import time
 
-from flask import Flask, request
+from fastapi import FastAPI, Request
 
 import config
 from handler import *
 
-app = Flask(__name__)
+app = FastAPI()
 
 
 def get_timestamp():
@@ -20,27 +20,21 @@ def get_timestamp():
     return timestamp
 
 
-@app.route("/webhook", methods=["POST"])
-def webhook():
-    try:
-        if request.method == "POST":
-            data = request.get_json()
-            key = data["key"]
-            if key == config.sec_key:
-                print(get_timestamp(), "Alert Received & Sent!")
-                send_alert(data)
-                return "Sent alert", 200
-
-            else:
-                print("[X]", get_timestamp(), "Alert Received & Refused! (Wrong Key)")
-                return "Refused alert", 400
-
-    except Exception as e:
-        print("[X]", get_timestamp(), "Error:\n>", e)
-        return "Error", 400
-
-
-if __name__ == "__main__":
-    from waitress import serve
-
-    serve(app, host="0.0.0.0", port=80)
+@app.post("/webhook")
+async def webhook(request: Request):
+    body = await request.body()
+    headers = request.headers
+    if 'text/plain' in headers['content-type']:
+        raise ValueError('Alert Message must be of type application/json')
+    elif 'application/json' in headers['content-type']:
+        data = await request.json()
+        if 'key' not in data:
+            return 400
+        key = data['key']
+        if key == config.sec_key:
+            print("[*]", get_timestamp(), "Alert Received & Sent!")
+            send_alert(data)
+            return 200
+        else:
+            print("[X]", get_timestamp(), "Alert Received & Refused! (Wrong Key)")
+            return 400

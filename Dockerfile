@@ -6,6 +6,6 @@ RUN apk add gcc python3-dev openssl-dev musl-dev libffi-dev &&\
     pip install --no-cache-dir -r requirements.txt
 
 COPY main.py handler.py config.py ./
-EXPOSE 80
+EXPOSE 8080
 
-ENTRYPOINT [ "python", "main.py" ]
+CMD [ "uvicorn", "main:app", "--port", "8080", "--host", "0.0.0.0" ]
