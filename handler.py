@@ -11,28 +11,29 @@ from email.mime.text import MIMEText
 import tweepy
 from discord_webhook import DiscordEmbed, DiscordWebhook
 from slack_webhook import Slack
-from telegram import Bot
-
 import config
+import requests
 
 
-def send_alert(data):
+def send_to_telegram(message):
+    apiToken = config.tg_token
+    chatID = config.channel
+    apiURL = f'https://api.telegram.org/bot{apiToken}/sendMessage'
+    try:
+        response = requests.post(apiURL, json={'chat_id': chatID,
+                                               'parse_mode': 'MARKDOWN',
+                                               'text': message})
+        return response
+    except Exception as e:
+        print(e)
+
+
+async def send_alert(data):
     msg = data["msg"].encode("latin-1", "backslashreplace").decode("unicode_escape")
     if config.send_telegram_alerts:
-        tg_bot = Bot(token=config.tg_token)
         try:
-            tg_bot.sendMessage(
-                data["telegram"],
-                msg,
-                parse_mode="MARKDOWN",
-            )
+            send_to_telegram(msg)
         except KeyError:
-            tg_bot.sendMessage(
-                config.channel,
-                msg,
-                parse_mode="MARKDOWN",
-            )
-        except Exception as e:
             print("[X] Telegram Error:\n>", e)
 
     if config.send_discord_alerts:

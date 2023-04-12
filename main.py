@@ -33,7 +33,7 @@ async def webhook(request: Request):
         key = data['key']
         if key == config.sec_key:
             print("[*]", get_timestamp(), "Alert Received & Sent!")
-            send_alert(data)
+            await send_alert(data)
             return 200
         else:
             print("[X]", get_timestamp(), "Alert Received & Refused! (Wrong Key)")
