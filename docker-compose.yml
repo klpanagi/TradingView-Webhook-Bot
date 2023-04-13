@@ -4,13 +4,14 @@ services:
   tradingview-webhook-bot:
     build: .
     container_name: tradingview-webhook-bot
-    ports:
-        - '80:8080'
+    network_mode: host
+    # ports:
+    #     - '80:8080'
     restart: unless-stopped
     command: [
       "uvicorn",
       "main:app",
       "--workers", "4",
       "--host", "0.0.0.0",
-      "--port", "8080",
+      "--port", "80",
       '--root-path', '/']

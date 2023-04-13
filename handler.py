@@ -15,6 +15,35 @@ import config
 import requests
 
 
+if config.send_mqtt_alerts:
+    from commlib.node import Node
+    from commlib.transports.mqtt import ConnectionParameters
+    from commlib.msg import MessageHeader, PubSubMessage
+    from typing import Dict, Any
+
+    class TradingViewSignal(PubSubMessage):
+        header: MessageHeader = MessageHeader()
+        data: Any
+
+    mqtt_node = Node(node_name='sensors.sonar.front',
+                     connection_params=ConnectionParameters(
+                        host=config.mqtt_host,
+                        port=config.mqtt_port,
+                        username=config.mqtt_username,
+                        password=config.mqtt_password
+                    ),
+                    debug=False)
+
+    mqtt_pub = mqtt_node.create_publisher(msg_type=TradingViewSignal,
+                                          topic=config.mqtt_alerts_topic)
+
+
+def send_to_mqtt(message):
+    msg = TradingViewSignal(data=message)
+    if mqtt_pub:
+        mqtt_pub.publish(msg)
+
+
 def send_to_telegram(message):
     apiToken = config.tg_token
     chatID = config.channel
@@ -33,6 +62,7 @@ async def send_alert(data):
     if config.send_telegram_alerts:
         try:
             send_to_telegram(msg)
+            print("[*] Telegram Alert sent!")
         except KeyError:
             print("[X] Telegram Error:\n>", e)
 
@@ -96,3 +126,7 @@ async def send_alert(data):
                 server.quit()
         except Exception as e:
             print("[X] Email Error:\n>", e)
+
+    if config.send_mqtt_alerts:
+        send_to_mqtt(msg)
+        print("[*] MQTT Alert sent!")

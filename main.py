@@ -28,11 +28,12 @@ async def webhook(request: Request):
         raise ValueError('Alert Message must be of type application/json')
     elif 'application/json' in headers['content-type']:
         data = await request.json()
+        print("[*]", get_timestamp(), "Alert Received: ", data)
         if 'key' not in data:
+            print("[X]", get_timestamp(), "Access Refused! Message must contain the 'key'")
             return 400
         key = data['key']
         if key == config.sec_key:
-            print("[*]", get_timestamp(), "Alert Received & Sent!")
             await send_alert(data)
             return 200
         else:

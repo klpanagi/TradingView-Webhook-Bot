@@ -30,3 +30,4 @@ urllib3==1.26.5
 waitress==2.1.1
 fastapi==0.95.0
 uvicorn
+commlib-py==0.10.6
