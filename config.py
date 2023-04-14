@@ -10,7 +10,7 @@
 # }
 
 sec_key = (
-    ""  # Can be anything. Has to match with "key" in your TradingView alert message
+    "o9Y9uLdGmTIU8zAeQWSqagwbmdZ5hzX2"  # Can be anything. Has to match with "key" in your TradingView alert message
 )
 
 # Telegram Settings
@@ -43,3 +43,10 @@ email_port = 465  # SMTP SSL Port (ex. 465)
 email_host = ""  # SMTP host (ex. smtp.gmail.com)
 email_user = ""  # SMTP Login credentials
 email_password = ""  # SMTP Login credentials
+
+send_mqtt_alerts = True
+mqtt_host = 'localhost'
+mqtt_port = 1883
+mqtt_username = ''
+mqtt_password = ''
+mqtt_alerts_topic = 'tv_alerts'
